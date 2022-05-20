@@ -7,7 +7,6 @@ const schema = require('./schema/schema')
 const mongoose = require('mongoose')
 
 const app = express();
-app.get('/', (req, res) => res.send('Home Page Route'));
 
 mongoose.connect(process.env.DB_URL);
 mongoose.connection.once('open',()=>{
@@ -19,7 +18,8 @@ app.use('/graphql',graphqlHTTP ({
     schema,
     graphiql:true
 }));
+
 const port = process.env.PORT || 4000
 app.listen(port,()=>{
- console.log("Now listening for requests on port 4000")
+ console.log(`Now listening for requests on port ${port}`)
 });
