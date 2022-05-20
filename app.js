@@ -7,11 +7,13 @@ const schema = require('./schema/schema')
 const mongoose = require('mongoose')
 
 const app = express();
+app.get('/', (req, res) => res.send('Home Page Route'));
 
 mongoose.connect(process.env.DB_URL);
 mongoose.connection.once('open',()=>{
     console.log("Connected to DB")
 })
+
 app.use(cors());
 app.use('/graphql',graphqlHTTP ({
     schema,
