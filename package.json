@@ -21,6 +21,7 @@
     "graphql": "^15.8.0",
     "loadsh": "^0.0.4",
     "mongoose": "^6.3.3",
+    "netlify-lambda": "^2.0.15",
     "nodemon": "^2.0.16"
   }
 }
