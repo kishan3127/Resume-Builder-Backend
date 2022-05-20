@@ -1,13 +1,14 @@
 const express = require('express');
 const graphqlHTTP = require('express-graphql').graphqlHTTP;
 const cors = require('cors')
+require('dotenv').config()
 
 const schema = require('./schema/schema')
 const mongoose = require('mongoose')
 
 const app = express();
 
-mongoose.connect('mongodb+srv://festo:sun123ARC@cluster0.uitzf.mongodb.net/clustor0?retryWrites=true&w=majority');
+mongoose.connect(process.env.DB_URL);
 mongoose.connection.once('open',()=>{
     console.log("Connected to DB")
 })

@@ -17,6 +17,7 @@ const {
     GraphQLBoolean
 } = graphql
 
+
 const BookType = new GraphQLObjectType({
     name:'Book',
     fields: ()=>({
@@ -40,7 +41,15 @@ const EmployeeType = new GraphQLObjectType({
         name:{type:GraphQLString},
         email: {type:GraphQLString},
         contact: {type:GraphQLString},
-        skill_intro: {type:GraphQLString}
+        skill_intro: {type:GraphQLString},
+        companies:{
+            type:new GraphQLList(CompanyType),
+            resolve(parent,args){
+                // check the list of employess from the employees IDs
+                return Company.find({employeesId:parent.id })
+            }
+        }
+ 
     })
 })
 
@@ -51,11 +60,13 @@ const CompanyType = new GraphQLObjectType({
         name:{type:GraphQLString},
         is_active: {type:GraphQLBoolean},
         url: {type:GraphQLString},
-        // employee:{type:new GraphQLList(Employee),
-        //     resolve(parent,args){
-        //         return Employee.find({companyId:parent.id})
-        //     }
-        // }
+        employeesId:{type:GraphQLList(GraphQLString)},
+        employees:{type:new GraphQLList(EmployeeType),
+            resolve(parent,args){
+                // check the list of employess from the employees IDs
+                   return Employee.find({_id:{$in:parent.employeesId }})
+            }
+        }
         // educations: {type:GraphQLString},
         // projects: {type:GraphQLString},
         // skills: {type:GraphQLString}
@@ -77,6 +88,7 @@ const AuthorType = new GraphQLObjectType({
         }
     })
 })
+
 
 const RootQuery = new GraphQLObjectType({
     name:'RootQueryType',
@@ -164,7 +176,7 @@ const Mutation = new GraphQLObjectType({
             resolve(parent,args) {
                 let employee = new Employee({
                     name:args.name,
-                    skill_intro:args.skill_intro
+                    skill_intro:args.skill_intro,
                 })
                 return employee.save();
             }
@@ -177,12 +189,16 @@ const Mutation = new GraphQLObjectType({
                 },
                 is_active:{
                     type: new GraphQLNonNull(GraphQLBoolean)
+                },
+                employeesId :{
+                    type:new GraphQLList(GraphQLID),  
                 }
             },
             resolve(parent,args) {
                 let company = new Company({
                     name:args.name,
-                    is_active:args.is_active
+                    is_active:args.is_active,
+                    employeesId:args.employeesId
                 })
                 return company.save();
             }
