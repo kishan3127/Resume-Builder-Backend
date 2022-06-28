@@ -1,5 +1,6 @@
 const graphql = require("graphql");
 const _ = require("loadsh");
+// const { create } = require("../helper/logger");
 
 const Book = require("../models/book");
 const Author = require("../models/author");
@@ -96,6 +97,8 @@ const RootQuery = new GraphQLObjectType({
         id: { type: GraphQLID },
       },
       resolve(parent, args) {
+        // create("log.txt", Employee.findById(args.id));
+
         return Employee.findById(args.id);
       },
     },
@@ -162,12 +165,11 @@ const Mutation = new GraphQLObjectType({
   fields: {
     deleteEmployee: {
       type: EmployeeType,
-
       args: {
         employeeId: { type: new GraphQLNonNull(GraphQLID) },
       },
       async resolve(parent, args) {
-        const result = await Employee.findByIdandDelete({
+        const result = await Employee.deleteOne({
           _id: args.employeeId,
         });
 
