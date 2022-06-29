@@ -16,21 +16,6 @@ const {
   GraphQLBoolean,
 } = graphql;
 
-const BookType = new GraphQLObjectType({
-  name: "Book",
-  fields: () => ({
-    id: { type: GraphQLID },
-    name: { type: GraphQLString },
-    genre: { type: GraphQLString },
-    author: {
-      type: AuthorType,
-      resolve(parent, args) {
-        return Author.findById(parent.authorId);
-      },
-    },
-  }),
-});
-
 const EmployeeType = new GraphQLObjectType({
   name: "Employee",
   fields: () => ({
@@ -67,22 +52,6 @@ const CompanyType = new GraphQLObjectType({
     // educations: {type:GraphQLString},
     // projects: {type:GraphQLString},
     // skills: {type:GraphQLString}
-  }),
-});
-
-const AuthorType = new GraphQLObjectType({
-  name: "Author",
-  fields: () => ({
-    id: { type: GraphQLID },
-    name: { type: GraphQLString },
-    age: { type: GraphQLInt },
-    books: {
-      type: new GraphQLList(BookType),
-      resolve(parent, args) {
-        // return _.filter(books,{authorId:parent.id})
-        return Book.find({ authorId: parent.id });
-      },
-    },
   }),
 });
 
