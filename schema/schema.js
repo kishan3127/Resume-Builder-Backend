@@ -1,20 +1,25 @@
 const graphql = require("graphql");
 
-const Employee = require("../models/employee");
-const Company = require("../models/company");
+// const Employee = require("../models/employee");
+// const Company = require("../models/company");
 
-const { create, append } = require("../helper/logger");
+const { append } = require("../helper/logger");
+const { Company, Employee } = require("../models");
 
 const {
   GraphQLObjectType,
   GraphQLString,
-  GraphQLInt,
   GraphQLID,
   GraphQLSchema,
   GraphQLList,
   GraphQLNonNull,
   GraphQLBoolean,
 } = graphql;
+
+const formatDate = () => {
+  const date = new Date();
+  return date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate();
+};
 
 const EmployeeType = new GraphQLObjectType({
   name: "Employee",
@@ -27,7 +32,6 @@ const EmployeeType = new GraphQLObjectType({
     companies: {
       type: new GraphQLList(CompanyType),
       resolve(parent, args) {
-        // check the list of employess from the employees IDs
         return Company.find({ employeesId: parent.id });
       },
     },
@@ -49,9 +53,6 @@ const CompanyType = new GraphQLObjectType({
         return Employee.find({ _id: { $in: parent.employeesId } });
       },
     },
-    // educations: {type:GraphQLString},
-    // projects: {type:GraphQLString},
-    // skills: {type:GraphQLString}
   }),
 });
 
@@ -79,7 +80,6 @@ const RootQuery = new GraphQLObjectType({
     companies: {
       type: new GraphQLList(CompanyType),
       resolve(parent, args) {
-        // return books
         return Company.find({});
       },
     },
@@ -101,11 +101,16 @@ const Mutation = new GraphQLObjectType({
         employeeId: { type: new GraphQLNonNull(GraphQLID) },
       },
       async resolve(parent, args) {
-        const result = await Employee.deleteOne({
+        const result = await Employee.findByIdAndRemove({
           _id: args.employeeId,
+        }).catch((error) => {
+          append(
+            formatDate() + "_delete.log",
+            "\n" + new Date() + " " + error + " - deleteEmployee"
+          );
         });
 
-        return result;
+        return result || new Error("User Already Removed");
       },
     },
     addEmployee: {
@@ -123,8 +128,12 @@ const Mutation = new GraphQLObjectType({
           name: args.name,
           skill_intro: args.skill_intro,
         });
-        create("Create.txt", "Saved");
-        return employee.save();
+        return employee.save().catch((err) => {
+          append(
+            formatDate() + "_createEmployee.txt",
+            "\n" + new Date() + " " + err + " - addEmployee"
+          );
+        });
       },
     },
     addCompany: {
@@ -146,7 +155,12 @@ const Mutation = new GraphQLObjectType({
           is_active: args.is_active,
           employeesId: args.employeesId,
         });
-        return company.save();
+        return company.save().catch((err) => {
+          append(
+            formatDate() + "_createCompany.txt",
+            "\n" + new Date() + " " + err + " - addCompany"
+          );
+        });
       },
     },
   },
