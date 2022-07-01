@@ -1,11 +1,7 @@
 const graphql = require("graphql");
-
-// const Employee = require("../models/employee");
-// const Company = require("../models/company");
-
 const { append } = require("../helper/logger");
 const { Company, Employee } = require("../models");
-
+const {createLogFile} = require("../helper/fileNameCreator")
 const {
   GraphQLObjectType,
   GraphQLString,
@@ -15,6 +11,7 @@ const {
   GraphQLNonNull,
   GraphQLBoolean,
 } = graphql;
+
 
 const formatDate = () => {
   const date = new Date();
@@ -32,7 +29,7 @@ const EmployeeType = new GraphQLObjectType({
     companies: {
       type: new GraphQLList(CompanyType),
       resolve(parent, args) {
-        return Company.find({ employeesId: parent.id });
+        return Employee.find({ employeesId: parent.id });
       },
     },
   }),
@@ -104,13 +101,15 @@ const Mutation = new GraphQLObjectType({
         const result = await Employee.findByIdAndRemove({
           _id: args.employeeId,
         }).catch((error) => {
+          // TODO: Create a new function for logs file creation
           append(
-            formatDate() + "_delete.log",
+            createLogFile("delete"),
             "\n" + new Date() + " " + error + " - deleteEmployee"
           );
+          return error;
         });
 
-        return result || new Error("User Already Removed");
+        return result || new Error("User Doesn't exists");
       },
     },
     addEmployee: {
