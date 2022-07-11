@@ -4,10 +4,14 @@ const Company = require("../models/company");
 const resolvers = {
   Mutation: {
     async createEmployee(_, { employeeInput: { name, skill_intro } }) {
+      // TODO: Add JOI library for the validations of the fields
+      // https://joi.dev/api/?v=17.6.0
+      
       var data = {
         name: name,
         skill_intro: skill_intro,
       };
+
       const newEmployee = new Employee(data);
 
       await newEmployee.save();
