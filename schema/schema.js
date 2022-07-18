@@ -1,5 +1,5 @@
 const graphql = require("graphql");
-const _ = require("loadsh");
+cconst _ = require("loadsh");
 
 const Book = require("../models/book");
 const Author = require("../models/author");
@@ -252,12 +252,3 @@ const Mutation = new GraphQLObjectType({
           authorId: args.authorId,
         });
         return book.save();
-      },
-    },
-  },
-});
-
-module.exports = new GraphQLSchema({
-  query: RootQuery,
-  mutation: Mutation,
-});
