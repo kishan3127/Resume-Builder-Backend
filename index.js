@@ -1,4 +1,5 @@
 const { ApolloServer } = require("apollo-server");
+const {ApolloServerPluginLandingPageGraphQLPlayground} = require('apollo-server-core')
 
 const mongoose = require("mongoose");
 require("dotenv").config();
@@ -10,6 +11,10 @@ const typeDefs = require("./typeDefs");
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  plugins: [
+    ApolloServerPluginLandingPageGraphQLPlayground(),
+  ],  
+
 });
 
 mongoose
