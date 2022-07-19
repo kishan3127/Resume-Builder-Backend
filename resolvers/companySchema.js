@@ -1,42 +1,42 @@
 const Company = require("../models/company");
-const Employee = require("../models/employee");
 
 const companyeResolvers = {
   Mutation: {
-    async createCompany(_, { companyInput: { name, is_active,employeesId } }) {
-
+    async createCompany(_, { companyInput: { name, is_active, employeesId } }) {
       var data = {
-        name: name,
-        is_active: is_active,
-        employeesId:employeesId
+        name,
+        is_active,
+        employeesId,
       };
 
-      const newCompany = new Company(data);
-      await newCompany.save();
+      const newCompany = await new Company(data);
+      newCompany.save();
 
       return {
-        id:newCompany._id,
+        _id: newCompany._id,
         ...data,
       };
-
     },
-    async deleteCompany(_, { id }) {
-      return  Company.findByIdAndRemove({_id: id})
+    async deleteCompany(_, { _id }) {
+      return Company.findByIdAndRemove({ _id });
     },
-    async updateCompany(_, {_id,companyInput}) {
-      const updatedCompany = await Company.findOneAndUpdate({_id},companyInput,{new:true})
-      return updatedCompany
-    },   
+    async updateCompany(_, { _id, companyInput }) {
+      const updatedCompany = await Company.findOneAndUpdate(
+        { _id },
+        companyInput,
+        { new: true }
+      );
+      return updatedCompany;
+    },
   },
   Query: {
-    async getCompanies(parent) {
+    async getCompanies() {
       return Company.find({});
     },
-    async getCompany(parent,{_id}) {
+    async getCompany(_, { _id }) {
       return Company.findById(_id);
-    }
+    },
   },
 };
 
- 
 module.exports = companyeResolvers;

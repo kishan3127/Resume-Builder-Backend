@@ -1,44 +1,113 @@
-const company = require("../models/company");
+const { ApolloError } = require("apollo-server");
+
 const Employee = require("../models/employee");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const employeeResolvers = {
   Mutation: {
-    async createEmployee(_, { employeeInput: { name, skill_intro } }) {
-     
+    async loginEmployee(_, { loginInput: { email, password } }) {
+      const user = await Employee.findOne({ email });
+
+      if (user && (await bcrypt.compare(password, user.password))) {
+        const token = jwt.sign(
+          {
+            user_id: user._id,
+            email,
+          },
+          process.env.SECRET_KEY,
+          {
+            expiresIn: "2h",
+          }
+        );
+        user.token = token;
+        return {
+          _id: user.id,
+          ...user._doc,
+          token,
+        };
+      } else {
+        throw new ApolloError(`Incorrect Password`, "INCORRECT_PASSWORD");
+      }
+    },
+
+    async createEmployee(
+      _,
+      { employeeInput: { email, name, skill_intro, password = "SunArc@123" } }
+    ) {
+      const oldUser = await Employee.findOne({ email });
+      if (oldUser) {
+        throw new ApolloError(
+          `User already exists with the name ${email}`,
+          "USER_ALREADY_EXISTS"
+        );
+      }
+
+      var encryptedPassword = await bcrypt.hash(password, 10);
       var data = {
-        name: name,
-        skill_intro: skill_intro,
+        email,
+        name,
+        skill_intro,
+        password: encryptedPassword,
       };
 
       const newEmployee = new Employee(data);
-      await newEmployee.save();
+
+      const token = jwt.sign(
+        {
+          user_id: newEmployee._id,
+          email,
+        },
+        process.env.SECRET_KEY,
+        {
+          expiresIn: "2h",
+        }
+      );
+
+      const result = await newEmployee.save();
 
       return {
-        ...data,
+        _id: result.id,
+        password: result.password,
+        ...result._doc,
+        token,
       };
     },
 
-    async deleteEmployee(_, { _id }) {      
-        return  Employee.findByIdAndRemove({_id})
-    },
-    
-    async updateEmployee(_, {_id,employeeInput}) { 
-      const updatedUser = await Employee.findOneAndUpdate({_id},employeeInput,{new:true})
-      return updatedUser;    
+    async deleteEmployee(_, { _id }) {
+      return await Employee.findByIdAndRemove({ _id });
     },
 
-   },
+    async updateEmployee(_, { _id, employeeInput }) {
+      const updatedUser = await Employee.findOneAndUpdate(
+        { _id },
+        employeeInput,
+        { new: true }
+      );
+      return updatedUser;
+    },
+  },
   Query: {
-    
-    async getEmployees() {
-      return Employee.find({});
+    async getEmployees(_, __, context) {
+      if (!context.user) return new Error("Please Login First");
+
+      const employee = await Employee.find({});
+      return employee;
     },
 
-    async getEmployee(parent,{_id}){
-      return Employee.findById(_id);
-    }
-  }
+    async getEmployee(_, { _id }) {
+      const employee = await Employee.findById(_id);
+      try {
+        if (employee) {
+          return employee;
+        } else {
+          return new Error("User not found");
+        }
+      } catch (err) {
+        return err;
+      }
+    },
+  },
 };
 
- 
 module.exports = employeeResolvers;
