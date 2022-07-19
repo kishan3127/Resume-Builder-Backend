@@ -1,4 +1,5 @@
 const graphql = require("graphql");
+
 const { append } = require("../helper/logger");
 const { Company, Employee } = require("../models");
 const {createLogFile} = require("../helper/fileNameCreator")
@@ -169,3 +170,4 @@ module.exports = new GraphQLSchema({
   query: RootQuery,
   mutation: Mutation,
 });
+
