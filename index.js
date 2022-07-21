@@ -24,8 +24,6 @@ const getUser = (token, req, res) => {
 };
 
 const server = new ApolloServer({
-  introspection: true,
-  playground: true,
   typeDefs,
   resolvers,
   plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
