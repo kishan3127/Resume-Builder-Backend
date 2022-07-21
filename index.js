@@ -14,15 +14,13 @@ const typeDefs = require("./typeDefs");
 
 const getUser = (token, req, res) => {
   const splitedToken = token.split(" ")[1];
-  // (err, decoded) => {
-  //   // if token not verified throw 403
-  //   if (err) {
-  //     console.log(err, "Error");
-  //     return new AuthenticationError(`Your Token Expired ${err}`);
-  //   }
-  //   req.decodedToken = decoded;
-  // };
-  return jwt.verify(splitedToken, process.env.SECRET_KEY);
+  return jwt.verify(splitedToken, process.env.SECRET_KEY, (err, decoded) => {
+    //   // if token not verified throw 403
+    if (err) {
+      return new AuthenticationError(`Your Token Expired ${err}`);
+    }
+    req.decodedToken = decoded;
+  });
 };
 
 const server = new ApolloServer({
@@ -32,14 +30,12 @@ const server = new ApolloServer({
   context: ({ req, res }) => {
     const token = req.headers.authorization || "";
 
-    try {
-      const user = getUser(token, req, res);
-      console.log(user);
+    getUser(token, req, res);
+    const user = req.decodedToken;
+    if (user) {
       return { user };
-    } catch (error) {
-      throw new AuthenticationError(`Invalid/Expired Token:  ${error}`);
     }
-    return { user };
+    return {};
   },
 });
 

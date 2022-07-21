@@ -11,7 +11,7 @@ const typeDefs = gql`
     COMPANY
   }
 
-  type Employee @auth(requires: HR) {
+  type Employee @auth(requires: ADMIN) {
     _id: ID!
     email: String
     name: String

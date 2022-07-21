@@ -6,7 +6,9 @@ const bcrypt = require("bcrypt");
 
 const employeeResolvers = {
   Mutation: {
-    async loginEmployee(_, { loginInput: { email, password } }) {
+    async loginEmployee(_, { loginInput: { email, password } }, context) {
+      // if (!context.user) return new Error("Please Login First");
+
       const user = await Employee.findOne({ email });
 
       if (user && (await bcrypt.compare(password, user.password))) {
@@ -33,8 +35,12 @@ const employeeResolvers = {
 
     async createEmployee(
       _,
-      { employeeInput: { email, name, skill_intro, password = "SunArc@123" } }
+      { employeeInput: { email, name, skill_intro, password = "SunArc@123" } },
+      context
     ) {
+      if (!context.user)
+        return new ApolloError("Please Login First", "LOGIN_REQUIRED");
+
       const oldUser = await Employee.findOne({ email });
       if (oldUser) {
         throw new ApolloError(
@@ -74,11 +80,17 @@ const employeeResolvers = {
       };
     },
 
-    async deleteEmployee(_, { _id }) {
+    async deleteEmployee(_, { _id }, context) {
+      if (!context.user)
+        return new ApolloError("Please Login First", "LOGIN_REQUIRED");
+
       return await Employee.findByIdAndRemove({ _id });
     },
 
-    async updateEmployee(_, { _id, employeeInput }) {
+    async updateEmployee(_, { _id, employeeInput }, context) {
+      if (!context.user)
+        return new ApolloError("Please Login First", "LOGIN_REQUIRED");
+
       const updatedUser = await Employee.findOneAndUpdate(
         { _id },
         employeeInput,
@@ -89,13 +101,18 @@ const employeeResolvers = {
   },
   Query: {
     async getEmployees(_, __, context) {
-      if (!context.user) return new Error("Please Login First");
+      console.log(context.user);
+      if (!context.user)
+        return new ApolloError("Please Login First", "LOGIN_REQUIRED");
 
       const employee = await Employee.find({});
       return employee;
     },
 
-    async getEmployee(_, { _id }) {
+    async getEmployee(_, { _id }, context) {
+      if (!context.user)
+        return new ApolloError("Please Login First", "LOGIN_REQUIRED");
+
       const employee = await Employee.findById(_id);
       try {
         if (employee) {
