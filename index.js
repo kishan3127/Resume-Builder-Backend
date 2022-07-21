@@ -43,7 +43,6 @@ mongoose
   .connect(process.env.DB_URL, { useNewUrlParser: true })
   .then(() => {
     return server.listen({
-      path: "/graphqlServer",
       port: process.env.PORT || 5000,
     });
   })
