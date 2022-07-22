@@ -1,4 +1,6 @@
-const { ApolloServer, AuthenticationError } = require("apollo-server");
+const express = require("express");
+const { ApolloServer } = require("apollo-server-express");
+const { AuthenticationError } = require("apollo-server");
 const {
   ApolloServerPluginLandingPageGraphQLPlayground,
 } = require("apollo-server-core");
@@ -23,6 +25,8 @@ const getUser = (token, req, res) => {
   });
 };
 
+const app = express();
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
@@ -39,14 +43,16 @@ const server = new ApolloServer({
   },
 });
 
-mongoose
-  .connect(process.env.DB_URL, { useNewUrlParser: true })
-  .then(() => {
-    return server.listen({
-      port: process.env.PORT || 5000,
-    });
-  })
-  .then(({ url }) => {
-    console.log(url);
-    console.log(`🚀 Server ready at ${url}`);
-  });
+apolloServerStart = async () => {
+  // Use Express app as middleware in Apollo Server instance
+  await server.start();
+  server.applyMiddleware({ app });
+};
+apolloServerStart();
+mongoose.connect(process.env.DB_URL, { useNewUrlParser: true }).then(() => {
+  return app.listen({ port: process.env.PORT || 9002 }, () =>
+    console.log(
+      `🚀Server ready at http://localhost:${process.env.PORT}${server.graphqlPath}`
+    )
+  );
+});
