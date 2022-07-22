@@ -46,7 +46,7 @@ const server = new ApolloServer({
 apolloServerStart = async () => {
   // Use Express app as middleware in Apollo Server instance
   await server.start();
-  server.applyMiddleware({ app });
+  server.applyMiddleware({ app, path: "/mongo" });
 };
 apolloServerStart();
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true }).then(() => {

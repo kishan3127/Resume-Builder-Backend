@@ -15,7 +15,7 @@ mongoose.connection.once("open", () => {
 
 app.use(cors());
 app.use(
-  "/graphql",
+  "/graphqlsadas",
   graphqlHTTP({
     schema,
     graphiql: true,
