@@ -44,7 +44,6 @@ const typeDefs = gql`
     name: String!
     email: String!
     skill_intro: String
-    password: String!
   }
   input EmployeeInputEdit {
     name: String!

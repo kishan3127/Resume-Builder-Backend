@@ -47,10 +47,18 @@ const userResolvers = {
       }
 
       const oldUser = await User.findOne({ email });
+
       if (oldUser) {
         throw new ApolloError(
           `User already exists with the email ${email}`,
           "USER_ALREADY_EXISTS"
+        );
+      }
+
+      if (role == "SUPERADMIN") {
+        throw new ApolloError(
+          `You can't create user with ${role}`,
+          "INVALID_USER_ROLE"
         );
       }
 
@@ -106,6 +114,13 @@ const userResolvers = {
     async getUser(_, { _id }, context) {
       if (!context.user)
         return new ApolloError("Please Login First", "LOGIN_REQUIRED");
+
+      if (context.user.role !== "SUPERADMIN" && context.user.role !== "ADMIN") {
+        return new ApolloError(
+          "You Don't have the authorization.",
+          "UNAUTHORIZED"
+        );
+      }
 
       const user = await User.findById(_id);
       try {
