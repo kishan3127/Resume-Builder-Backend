@@ -34,7 +34,18 @@ const employeeResolvers = {
     },
     async createEmployee(
       _,
-      { employeeInput: { email, name, skill_intro, password = "SunArc@123" } },
+      {
+        employeeInput: {
+          name,
+          email,
+          skill_intro,
+          contact,
+          intro,
+          projects,
+          educations,
+          skills,
+        },
+      },
       context
     ) {
       if (!context.user)
@@ -48,34 +59,36 @@ const employeeResolvers = {
         );
       }
 
-      var encryptedPassword = await bcrypt.hash(password, 10);
+      // var encryptedPassword = await bcrypt.hash(password, 10);
       var data = {
-        email,
         name,
+        email,
         skill_intro,
-        password: encryptedPassword,
+        contact,
+        intro,
+        projects,
+        educations,
+        skills,
       };
 
       const newEmployee = new Employee(data);
 
-      const token = jwt.sign(
-        {
-          user_id: newEmployee._id,
-          email,
-        },
-        process.env.SECRET_KEY,
-        {
-          expiresIn: "2h",
-        }
-      );
+      // const token = jwt.sign(
+      //   {
+      //     user_id: newEmployee._id,
+      //     email,
+      //   },
+      //   process.env.SECRET_KEY,
+      //   {
+      //     expiresIn: "2h",
+      //   }
+      // );
 
       const result = await newEmployee.save();
-
       return {
         _id: result.id,
-        password: result.password,
         ...result._doc,
-        token,
+        // token,
       };
     },
 

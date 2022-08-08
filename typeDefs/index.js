@@ -13,6 +13,48 @@ const typeDefs = gql`
     COMPANY
   }
 
+  type Intro {
+    description: String
+    title: String
+  }
+
+  type Project {
+    role: String
+    description: String
+  }
+
+  type Education {
+    course: String
+    description: String
+  }
+
+  type Skill {
+    name: String
+    percentage: Int
+    show: Boolean
+  }
+
+  input IntroInput {
+    description: String
+    title: String
+  }
+
+  input ProjectInput {
+    role: String
+    description: String
+  }
+
+  input EducationInput {
+    course: String
+    description: String
+  }
+
+  input SkillInput {
+    name: String
+    percentage: Int
+    show: Boolean
+  }
+
   type User {
     _id: ID!
     name: String
@@ -28,8 +70,13 @@ const typeDefs = gql`
     email: String
     name: String
     skill_intro: String
-    token: String
     companies: [Company!]
+
+    contact: String
+    intro: Intro
+    projects: [Project]
+    educations: [Education]
+    skills: [Skill]
   }
 
   type Company {
@@ -44,11 +91,24 @@ const typeDefs = gql`
     name: String!
     email: String!
     skill_intro: String
+
+    contact: String
+    intro: IntroInput
+    projects: [ProjectInput]
+    educations: [EducationInput]
+    skills: [SkillInput]
   }
+
   input EmployeeInputEdit {
     name: String!
     email: String!
     skill_intro: String
+
+    contact: String
+    intro: IntroInput
+    projects: [ProjectInput]
+    educations: [EducationInput]
+    skills: [SkillInput]
   }
 
   input EmployeeLoginInput {
@@ -90,9 +150,10 @@ const typeDefs = gql`
 
     createUser(userCreateInput: UserCreateInput): User!
 
-    createEmployee(employeeInput: EmployeeInput): Employee! @isAuth
+    createEmployee(employeeInput: EmployeeInput): Employee @isAuth
     updateEmployee(_id: ID!, employeeInput: EmployeeInputEdit): Employee!
       @isAuth
+
     deleteEmployee(_id: ID): Employee @isAuth
 
     createCompany(companyInput: CompanyInput): Company! @isAuth
