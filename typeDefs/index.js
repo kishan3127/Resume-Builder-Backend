@@ -1,9 +1,11 @@
 const { gql } = require("apollo-server");
 
 const typeDefs = gql`
-  directive @auth(requires: Role = ADMIN) on OBJECT | FIELD_DEFINITION
+  directive @isAuth on OBJECT | FIELD_DEFINITION
+  directive @upper on OBJECT | FIELD_DEFINITION
 
   enum Role {
+    SUPERADMIN
     ADMIN
     HR
     SALES
@@ -11,14 +13,23 @@ const typeDefs = gql`
     COMPANY
   }
 
-  type Employee @auth(requires: ADMIN) {
+  type User {
+    _id: ID!
+    name: String
+    password: String
+    email: String
+    role: Role
+    token: String
+    expiresIn: Int
+  }
+
+  type Employee @isAuth {
     _id: ID!
     email: String
     name: String
     skill_intro: String
     token: String
     companies: [Company!]
-    password: String
   }
 
   type Company {
@@ -35,7 +46,25 @@ const typeDefs = gql`
     skill_intro: String
     password: String!
   }
+  input EmployeeInputEdit {
+    name: String!
+    email: String!
+    skill_intro: String
+  }
+
   input EmployeeLoginInput {
+    email: String!
+    password: String!
+  }
+
+  input UserCreateInput {
+    email: String!
+    password: String!
+    name: String!
+    role: String!
+  }
+
+  input UserLoginInput {
     email: String!
     password: String!
   }
@@ -50,20 +79,27 @@ const typeDefs = gql`
     getEmployees: [Employee!]
     getEmployee(_id: ID!): Employee!
 
-    getCompanies: [Company!]
+    getCompanies: [Company!] @isAuth
     getCompany(_id: ID!): Company!
+    getUser(_id: ID!): User
+    getUsers: [User]
   }
 
   type Mutation {
-    createEmployee(employeeInput: EmployeeInput): Employee!
     loginEmployee(loginInput: EmployeeLoginInput): Employee!
-    updateEmployee(_id: ID!, employeeInput: EmployeeInput): Employee!
-    deleteEmployee(_id: ID): Employee
+    loginUser(loginInput: UserLoginInput): User!
 
-    createCompany(companyInput: CompanyInput): Company!
-    updateCompany(_id: ID!, companyInput: CompanyInput): Company!
+    createUser(userCreateInput: UserCreateInput): User!
 
-    deleteCompany(_id: ID): Company
+    createEmployee(employeeInput: EmployeeInput): Employee! @isAuth
+    updateEmployee(_id: ID!, employeeInput: EmployeeInputEdit): Employee!
+      @isAuth
+    deleteEmployee(_id: ID): Employee @isAuth
+
+    createCompany(companyInput: CompanyInput): Company! @isAuth
+    updateCompany(_id: ID!, companyInput: CompanyInput): Company! @isAuth
+
+    deleteCompany(_id: ID): Company @isAuth
   }
 `;
 

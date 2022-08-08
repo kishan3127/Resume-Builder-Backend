@@ -1,45 +1,51 @@
 const express = require("express");
 const { ApolloServer } = require("apollo-server-express");
-const { AuthenticationError } = require("apollo-server");
 const {
   ApolloServerPluginLandingPageGraphQLPlayground,
 } = require("apollo-server-core");
 
-const jwt = require("jsonwebtoken");
+const { makeExecutableSchema } = require('@graphql-tools/schema');
 
 const mongoose = require("mongoose");
 require("dotenv").config();
 
+const { AuthMiddleware } = require("./middlewares/auth");
+const upperDirectiveTransformer = require("./directives/upper");
+const isAuthDirectiveTransformer  = require("./directives/authDirective");
+
 const resolvers = require("./resolvers");
 const typeDefs = require("./typeDefs");
-// The GraphQL schema
+const schemaDirectives = require("./directives")
 
-const getUser = (token, req, res) => {
-  const splitedToken = token.split(" ")[1];
-  return jwt.verify(splitedToken, process.env.SECRET_KEY, (err, decoded) => {
-    //   // if token not verified throw 403
-    if (err) {
-      return new AuthenticationError(`Your Token Expired ${err}`);
-    }
-    req.decodedToken = decoded;
-  });
-};
 
 const app = express();
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
-  context: ({ req, res }) => {
-    const token = req.headers.authorization || "";
+app.use(AuthMiddleware)
 
-    getUser(token, req, res);
-    const user = req.decodedToken;
-    if (user) {
-      return { user };
+const logger = { log: e => console.log(e,"from logger") }
+
+const directiveTransformers = schemaDirectives;
+let schema = makeExecutableSchema({
+  logger,
+  typeDefs,
+  resolvers
+});
+
+// Transform the schema by applying directive logic
+schema = upperDirectiveTransformer(schema, 'upper');
+schema = isAuthDirectiveTransformer(schema, 'isAuth');
+
+
+const server = new ApolloServer({
+  schema,
+  plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+  context: ({ req }) => {
+    let { isAuth, user } = req;
+    return {
+      req,
+      isAuth,
+      user
     }
-    return {};
   },
 });
 
@@ -48,6 +54,7 @@ apolloServerStart = async () => {
   await server.start();
   server.applyMiddleware({ app, path: "/mongo" });
 };
+
 apolloServerStart();
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true }).then(() => {
   return app.listen({ port: process.env.PORT || 9002 }, () =>

@@ -32,7 +32,6 @@ const employeeResolvers = {
         throw new ApolloError(`Incorrect Password`, "INCORRECT_PASSWORD");
       }
     },
-
     async createEmployee(
       _,
       { employeeInput: { email, name, skill_intro, password = "SunArc@123" } },
@@ -88,8 +87,8 @@ const employeeResolvers = {
     },
 
     async updateEmployee(_, { _id, employeeInput }, context) {
-      if (!context.user)
-        return new ApolloError("Please Login First", "LOGIN_REQUIRED");
+      // if (!context.user)
+      //   return new ApolloError("Please Login First", "LOGIN_REQUIRED");
 
       const updatedUser = await Employee.findOneAndUpdate(
         { _id },
@@ -101,7 +100,6 @@ const employeeResolvers = {
   },
   Query: {
     async getEmployees(_, __, context) {
-      console.log(context.user);
       if (!context.user)
         return new ApolloError("Please Login First", "LOGIN_REQUIRED");
 
@@ -110,15 +108,15 @@ const employeeResolvers = {
     },
 
     async getEmployee(_, { _id }, context) {
-      if (!context.user)
-        return new ApolloError("Please Login First", "LOGIN_REQUIRED");
+      // if (!context.user)
+      //   return new ApolloError("Please Login First", "LOGIN_REQUIRED");
 
       const employee = await Employee.findById(_id);
       try {
         if (employee) {
           return employee;
         } else {
-          return new Error("User not found");
+          return new Error("Employee not found");
         }
       } catch (err) {
         return err;

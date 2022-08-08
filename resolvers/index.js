@@ -1,7 +1,10 @@
 const Employee = require("./employeeSchema");
 const Company = require("./companySchema");
+const User = require("./userSchema");
+
 const CompanyModal = require("../models/company");
 const EmployeeModal = require("../models/employee");
+const { UserInputError } = require("apollo-server-errors");
 
 const resolvers = {
   Employee: {
@@ -23,10 +26,12 @@ const resolvers = {
   Mutation: {
     ...Employee.Mutation,
     ...Company.Mutation,
+    ...User.Mutation,
   },
   Query: {
     ...Employee.Query,
     ...Company.Query,
+    ...User.Query,
   },
 };
 
