@@ -60,11 +60,11 @@ const employeeSchema = new Schema({
       },
       percentage: {
         type: Number,
-        default: null,
+        default: 0,
       },
       show: {
         type: Boolean,
-        default: null,
+        default: false,
       },
     },
   ],
