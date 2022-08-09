@@ -4,7 +4,6 @@ const User = require("./userSchema");
 
 const CompanyModal = require("../models/company");
 const EmployeeModal = require("../models/employee");
-const { UserInputError } = require("apollo-server-errors");
 
 const resolvers = {
   Employee: {

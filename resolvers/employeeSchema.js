@@ -37,6 +37,7 @@ const employeeResolvers = {
       {
         employeeInput: {
           name,
+          department,
           email,
           skill_intro,
           contact,
@@ -62,6 +63,7 @@ const employeeResolvers = {
       // var encryptedPassword = await bcrypt.hash(password, 10);
       var data = {
         name,
+        department,
         email,
         skill_intro,
         contact,

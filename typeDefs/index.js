@@ -71,6 +71,7 @@ const typeDefs = gql`
     name: String
     skill_intro: String
     companies: [Company!]
+    department: String
 
     contact: String
     intro: Intro
@@ -91,6 +92,7 @@ const typeDefs = gql`
     name: String!
     email: String!
     skill_intro: String
+    department: String
 
     contact: String
     intro: IntroInput
@@ -103,6 +105,7 @@ const typeDefs = gql`
     name: String!
     email: String!
     skill_intro: String
+    department: String
 
     contact: String
     intro: IntroInput
