@@ -1,8 +1,30 @@
 const { ApolloError } = require("apollo-server");
 
 const Employee = require("../models/employee");
+const Company = require("../models/company");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+
+async function deleteEmployeeIdFromCompany(_id) {
+  Company.find({ employeesId: { $in: [_id] } }, function (err, docs) {
+    if (err) {
+      console.log(err);
+    } else {
+      docs.map(async (doc) => {
+        indexOfCandidate = doc.employeesId.indexOf(_id.toString());
+        if (indexOfCandidate !== -1) {
+          doc.employeesId.splice(indexOfCandidate, 1);
+          const { _id: company_id, ...restCompanyDetails } = doc;
+          await Company.findOneAndUpdate(
+            { _id: company_id },
+            restCompanyDetails,
+            { new: true }
+          ).exec();
+        }
+      });
+    }
+  });
+}
 
 const employeeResolvers = {
   Mutation: {
@@ -98,8 +120,17 @@ const employeeResolvers = {
       if (!context.user)
         return new ApolloError("Please Login First", "LOGIN_REQUIRED");
 
-      return await Employee.findByIdAndRemove({ _id });
+      const result = await Employee.findByIdAndRemove({ _id });
+      console.log(result);
+      if (result) {
+        await deleteEmployeeIdFromCompany(_id);
+        return result;
+      } else {
+        return new ApolloError("ID not found", "NO_RECORD");
+      }
     },
+
+    // findByIdAndRemove
 
     async updateEmployee(_, { _id, employeeInput }, context) {
       // if (!context.user)

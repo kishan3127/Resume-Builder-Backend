@@ -1,14 +1,30 @@
+const { ApolloError } = require("apollo-server");
+
 const Company = require("../models/company");
+const Employee = require("../models/employee");
 
 const companyeResolvers = {
   Mutation: {
-    async createCompany(_, { companyInput: { name, is_active, employeesId } }) {
+    async createCompany(
+      _,
+      { companyInput: { name, is_active, employeesId, email } },
+      context
+    ) {
+      if (!context?.user || !context?.user._id) {
+        return new ApolloError(
+          "You don't have rights to add company",
+          "LOGIN_REQUIRED"
+        );
+      }
       var data = {
         name,
         is_active,
         employeesId,
+        email,
+        createdBy: context?.user.name,
+        createdAt: Date.now(),
       };
-
+      console.log(context);
       const newCompany = await new Company(data);
       newCompany.save();
 

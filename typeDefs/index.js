@@ -86,6 +86,9 @@ const typeDefs = gql`
     is_active: Boolean
     employeesId: [String]
     employees: [Employee!]
+    email: String
+    createdBy: ID!
+    createdAt: String!
   }
 
   input EmployeeInput {
@@ -135,6 +138,7 @@ const typeDefs = gql`
     name: String!
     is_active: Boolean
     employeesId: [String]
+    email: String
   }
 
   type Query {
