@@ -24,7 +24,6 @@ const AuthMiddleware = async (req, res, next) => {
   try {
     decodedToken = verify(token, SECRET);
   } catch (error) {
-    console.log(error, "error");
     req.isAuth = false;
     // throw new ApolloError(error, "LOGIN_REQUIRED");
     return next();

@@ -67,6 +67,7 @@ const employeeResolvers = {
           projects,
           educations,
           skills,
+          userImage,
         },
       },
       context
@@ -93,6 +94,7 @@ const employeeResolvers = {
         projects,
         educations,
         skills,
+        userImage,
       };
 
       const newEmployee = new Employee(data);
@@ -121,7 +123,6 @@ const employeeResolvers = {
         return new ApolloError("Please Login First", "LOGIN_REQUIRED");
 
       const result = await Employee.findByIdAndRemove({ _id });
-      console.log(result);
       if (result) {
         await deleteEmployeeIdFromCompany(_id);
         return result;
@@ -135,7 +136,6 @@ const employeeResolvers = {
     async updateEmployee(_, { _id, employeeInput }, context) {
       // if (!context.user)
       //   return new ApolloError("Please Login First", "LOGIN_REQUIRED");
-
       const updatedUser = await Employee.findOneAndUpdate(
         { _id },
         employeeInput,

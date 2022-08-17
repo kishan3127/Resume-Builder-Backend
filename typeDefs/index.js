@@ -72,6 +72,7 @@ const typeDefs = gql`
     skill_intro: String
     companies: [Company!]
     department: String
+    userImage: String
 
     contact: String
     intro: Intro
@@ -96,6 +97,7 @@ const typeDefs = gql`
     email: String!
     skill_intro: String
     department: String
+    userImage: String
 
     contact: String
     intro: IntroInput
@@ -109,6 +111,7 @@ const typeDefs = gql`
     email: String!
     skill_intro: String
     department: String
+    userImage: String
 
     contact: String
     intro: IntroInput

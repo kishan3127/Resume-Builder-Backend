@@ -6,6 +6,10 @@ const employeeSchema = new Schema({
     type: String,
     default: null,
   },
+  userImage: {
+    type: String,
+    default: null,
+  },
   department: {
     type: String,
     default: null,
